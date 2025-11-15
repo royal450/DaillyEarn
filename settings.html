@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - CashByKing</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; user-select: none; }
+    :root { --bg-color: #f8fafc; --nav-bg: rgba(255,255,255,0.98); --card-bg: rgba(255,255,255,0.98); --text-color: #1e293b; --accent-color: #6366f1; --accent-gradient: linear-gradient(135deg,#6366f1,#8b5cf6); --icon-bg: #f1f5f9; --icon-color: #64748b; --border-color: rgba(0,0,0,0.08); --shadow: 0 8px 30px rgba(0,0,0,0.08); --nav-height: 80px; }
+    [data-theme="dark"] { --bg-color: #0f172a; --nav-bg: rgba(15,23,42,0.98); --card-bg: rgba(15,23,42,0.98); --text-color: #f1f5f9; --accent-color: #818cf8; --accent-gradient: linear-gradient(135deg,#818cf8,#a78bfa); --icon-bg: rgba(255,255,255,0.08); --icon-color: #cbd5e1; --border-color: rgba(255,255,255,0.1); --shadow: 0 8px 30px rgba(0,0,0,0.3); }
+    
+    html, body { height: 100%; width: 100%; margin: 0; padding: 0; overflow-x: hidden; }
+    body { background: var(--bg-color); color: var(--text-color); display: flex; flex-direction: column; min-height: 100vh; transition: all 0.3s ease; }
+
+    .nav-container { background: var(--nav-bg); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border-color); padding: 0 5%; height: var(--nav-height); position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: var(--shadow); transition: all 0.3s ease; display: flex; align-items: center; }
+    .navbar { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 1400px; margin: 0 auto; }
+    .brand { display: flex; align-items: center; gap: 12px; cursor: pointer; transform-origin: left center; transition: all 0.3s ease; }
+    .logo { width: 50px; height: 50px; background: var(--accent-gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 22px; box-shadow: 0 4px 15px rgba(99,102,241,0.3); transition: all 0.3s ease; }
+    .brand:hover .logo { transform: rotate(15deg) scale(1.05); }
+    .brand-name { font-size: 20px; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; letter-spacing: -0.5px; }
+    .nav-right { display: flex; align-items: center; gap: 0px; }
+    .theme-toggle { display: flex; align-items: center; gap: 0px; background: transparent; padding: 10px 6px; border-radius: 50px; cursor: pointer; transition: all 0.3s ease; border: 0px solid var(--border-color); }
+    .toggle-slider { width: 50px; height: 26px; background: var(--icon-bg); border-radius: 50px; position: relative; transition: all 0.3s ease; border: 1px solid var(--border-color); }
+    .toggle-slider::before { content: ''; position: absolute; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-gradient); top: 2px; left: 3px; transition: all 0.3s ease; }
+    [data-theme="dark"] .toggle-slider::before { transform: translateX(22px); }
+    .theme-text { font-size: 16px; font-weight: 600; color: var(--text-color); }
+    .nav-icons { display: flex; align-items: center; gap: 12px; }
+    .icon-container { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 14px; background: var(--icon-bg); color: var(--icon-color); cursor: pointer; transition: all 0.3s ease; position: relative; border: 1px solid var(--border-color); font-size: 18px; }
+    .icon-container:hover { transform: translateY(-3px); background: var(--accent-color); color: white; box-shadow: 0 8px 20px rgba(99,102,241,0.3); }
+    .three-dots { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; }
+    .dot { width: 5px; height: 5px; background: currentColor; border-radius: 50%; }
+    .menu-dropdown { position: fixed; top: calc(var(--nav-height) + 10px); right: 5%; background: var(--nav-bg); backdrop-filter: blur(20px); border-radius: 16px; padding: 10px 0; box-shadow: var(--shadow); border: 1px solid var(--border-color); min-width: 250px; opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.3s ease; z-index: 999; }
+    .menu-dropdown.active { opacity: 1; visibility: visible; transform: translateY(0); }
+    .menu-item { display: flex; align-items: center; gap: 15px; padding: 14px 20px; color: var(--text-color); text-decoration: none; transition: all 0.3s ease; font-weight: 600; font-size: 15px; }
+    .menu-item:hover { background: var(--icon-bg); color: var(--accent-color); }
+    .menu-item i { width: 20px; color: var(--accent-color); }
+    .menu-divider { height: 1px; background: var(--border-color); margin: 10px 0; }
+
+    .main-content { flex: 1; padding-top: calc(var(--nav-height) + 20px); padding-bottom: 40px; padding-left: 20px; padding-right: 20px; width: 100%; max-width: 600px; margin: 0 auto; }
+    h1 { font-size: 28px; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 25px; }
+    .card { background: var(--card-bg); padding: 25px; border-radius: 16px; margin-bottom: 20px; box-shadow: var(--shadow); border: 1px solid var(--border-color); }
+    input { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid var(--border-color); background: var(--bg-color); color: var(--text-color); margin-bottom: 15px; transition: all 0.3s ease; }
+    input:focus { outline: none; border-color: var(--accent-color); box-shadow: 0 0 0 5px rgba(99,102,241,0.12); }
+    .btn { width: 100%; padding: 14px; border-radius: 12px; border: none; background: var(--accent-gradient); color: white; font-weight: 700; cursor: pointer; margin-bottom: 10px; transition: all 0.3s ease; }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(99,102,241,0.3); }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .whatsapp-btn { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #25D366; color: white; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 8px 25px rgba(37,211,102,0.4); cursor: pointer; z-index: 999; }
+    .professional-footer { background: var(--card-bg); backdrop-filter: blur(20px); color: var(--text-color); padding: 40px 20px 25px; width: 100%; border-top: 1px solid var(--border-color); margin-top: 60px; }
+    .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 35px; }
+    .footer-section h3 { font-size: 18px; font-weight: 700; margin-bottom: 18px; color: var(--accent-color); display: flex; align-items: center; gap: 10px; }
+    .footer-section p, .footer-section a { font-size: 14px; line-height: 1.8; opacity: 0.85; color: var(--text-color); text-decoration: none; display: block; margin-bottom: 10px; transition: all 0.3s ease; }
+    .footer-section a:hover { opacity: 1; color: var(--accent-color); transform: translateX(5px); }
+    .footer-section i { margin-right: 10px; width: 20px; color: var(--accent-color); }
+    .social-links { display: flex; gap: 15px; margin-top: 15px; }
+    .social-links a { width: 42px; height: 42px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; margin-bottom: 0; }
+    .social-links a:hover { transform: translateY(-5px) scale(1.1); box-shadow: 0 10px 25px rgba(99,102,241,0.4); }
+    .footer-bottom { text-align: center; padding-top: 25px; margin-top: 30px; border-top: 1px solid var(--border-color); font-size: 13px; opacity: 0.7; }
+    @media (max-width: 768px) { .footer-content { grid-template-columns: 1fr; gap: 25px; } .brand-name { font-size: 20px; } }
+  .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .hamburger-menu .bar {
+      width: 100%;
+      height: 3px;
+      background-color: var(--text-color);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .navbar .nav-icons {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <!-- Navigation Bar (Copied from Dashboard) -->
+  <div class="nav-container">
+    <nav class="navbar">
+      <div class="brand" style="pointer-events:auto;" onclick="window.location.href='/dashboard'">
+        <div class="logo">$</div>
+        <div class="brand-name">Ca$hByKing</div>
+      </div>
+
+      <div class="nav-right">
+        <div class="theme-toggle" id="themeToggle">
+          <span class="theme-text">Light</span>
+          <div class="toggle-slider" aria-hidden="true"></div>
+        </div>
+
+        <div class="nav-icons">
+          <div class="icon-container" id="walletBtn">
+            <i class="fas fa-wallet"></i>
+            <div class="notification-badge">3</div>
+          </div>
+
+          <div class="icon-container" id="menuBtn">
+            <div class="three-dots" aria-hidden="true">
+              <div class="dot"></div>
+              <div class="dot"></div>
+              <div class="dot"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Hamburger Menu Icon -->
+        <div class="hamburger-menu" id="hamburgerMenu">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+    </nav>
+  </div>
+
+  <!-- Menu Dropdown -->
+  <div class="menu-dropdown" id="menuDropdown" aria-hidden="true">
+    <a href="/dashboard" class="menu-item"><i class="fas fa-home"></i><span>Home</span></a>
+    <a href="/wallet" class="menu-item"><i class="fas fa-wallet"></i><span>Wallet</span></a>
+    <a href="/transactions" class="menu-item"><i class="fas fa-exchange-alt"></i><span>Transactions</span></a>
+    <a href="/referral" class="menu-item"><i class="fas fa-chart-line"></i><span>Refer & Earn</span></a>
+    <a href="/checkin" class="menu-item"><i class="fas fa-calendar-check"></i><span>Daily Check-in</span></a>
+    <a href="/pending-tasks" class="menu-item"><i class="fas fa-clock"></i><span>Pending Tasks</span></a>
+    <div class="menu-divider"></div>
+    <a href="/settings" class="menu-item"><i class="fas fa-cog"></i><span>Settings</span></a>
+    <a href="https://wa.me/919104037184" target="_blank" class="menu-item"><i class="fas fa-phone"></i><span>Support</span></a>
+  </div>
+
+  <a href="https://wa.me/919104037184" target="_blank" class="whatsapp-btn">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <div class="main-content">
+    <h1><i class="fas fa-cog"></i> Settings</h1>
+
+    <div class="card">
+      <h2 style="margin-bottom: 20px; font-size: 20px;">Update Profile</h2>
+      <form id="profileForm">
+        <input type="text" id="name" placeholder="Your Name" required>
+        <input type="text" id="profilePhoto" placeholder="Profile Photo URL (optional)">
+        <button type="submit" class="btn"><i class="fas fa-save"></i> Save Changes</button>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 20px; font-size: 20px;">Theme Preference</h2>
+      <div style="padding: 15px; background: var(--bg-color); border-radius: 12px; text-align: center;">
+        Current theme: <strong id="currentTheme">Light</strong>
+        <div style="margin-top: 10px; font-size: 14px; opacity: 0.7;">Use the toggle button above to change theme</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-bottom: 20px; font-size: 20px; color: #ef4444;">Danger Zone</h2>
+      <button class="btn btn-danger" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>
+
+  <footer class="professional-footer">
+    <div class="footer-content">
+      <div class="footer-section">
+        <h3><i class="fas fa-dollar-sign"></i> CashByKing</h3>
+        <p>India's most trusted earning platform. Complete tasks, earn rewards, and withdraw directly to your UPI account.</p>
+        <div class="social-links">
+          <a href="https://t.me/CashByKing" target="_blank"><i class="fab fa-telegram"></i></a>
+          <a href="https://wa.me/919104037184" target="_blank"><i class="fab fa-whatsapp"></i></a>
+          <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h3><i class="fas fa-link"></i> Quick Links</h3>
+        <a href="/dashboard"><i class="fas fa-th-large"></i> Dashboard</a>
+        <a href="/wallet"><i class="fas fa-wallet"></i> Wallet</a>
+        <a href="/transactions"><i class="fas fa-history"></i> Transactions</a>
+        <a href="/checkin"><i class="fas fa-calendar-check"></i> Daily Check-in</a>
+      </div>
+      <div class="footer-section">
+        <h3><i class="fas fa-address-card"></i> Contact Us</h3>
+        <a href="https://wa.me/919104037184"><i class="fab fa-whatsapp"></i> +91 9104037184</a>
+        <a href="mailto:support@cashbyking.com"><i class="fas fa-envelope"></i> support@cashbyking.com</a>
+        <a href="https://t.me/CashByKing"><i class="fab fa-telegram"></i> @CashByKing</a>
+      </div>
+      <div class="footer-section">
+        <h3><i class="fas fa-wallet"></i> Payment Info</h3>
+        <p><i class="fas fa-money-bill-wave"></i> UPI: reelsmarketesdevils@yesg</p>
+        <p><i class="fas fa-clock"></i> 24/7 Support Available</p>
+        <p><i class="fas fa-shield-alt"></i> 100% Secure Payments</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 CashByKing. All rights reserved. Made with <i class="fas fa-heart" style="color: #ef4444;"></i> in India</p>
+    </div>
+  </footer>
+
+  <script>
+    // Immediate auth check
+    (async function() {
+      try {
+        const response = await fetch('/api/auth/check');
+        const data = await response.json();
+        if (!data.authenticated) {
+          window.location.href = '/signup';
+        }
+      } catch (error) {
+        window.location.href = '/signup';
+      }
+    })();
+
+    // Theme Toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    body.setAttribute('data-theme', savedTheme);
+    updateThemeText();
+    document.getElementById('currentTheme').textContent = savedTheme.charAt(0).toUpperCase() + savedTheme.slice(1);
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeText();
+      document.getElementById('currentTheme').textContent = newTheme.charAt(0).toUpperCase() + newTheme.slice(1);
+    });
+
+    function updateThemeText() {
+      const theme = body.getAttribute('data-theme');
+      const themeText = themeToggle.querySelector('.theme-text');
+      if (themeText) {
+        themeText.textContent = theme === 'light' ? 'Light' : 'Dark';
+      }
+    }
+
+    // Menu Dropdown
+    const menuBtn = document.getElementById('menuBtn');
+    const menuDropdown = document.getElementById('menuDropdown');
+    const hamburgerMenu = document.getElementById('hamburgerMenu');
+
+    menuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuDropdown.classList.toggle('active');
+    });
+
+    // Hamburger Menu Functionality
+    hamburgerMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menuDropdown.classList.toggle('active');
+      hamburgerMenu.classList.toggle('is-active');
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', () => {
+      menuDropdown.classList.remove('active');
+      hamburgerMenu.classList.remove('is-active');
+    });
+
+    // Prevent dropdown from closing when clicking inside it
+    menuDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    // Wallet Button
+    const walletBtn = document.getElementById('walletBtn');
+    walletBtn.addEventListener('click', () => {
+      window.location.href = '/wallet';
+    });
+
+    async function loadUserData() {
+      try {
+        const response = await fetch('/api/user/me');
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('name').value = data.user.name;
+          document.getElementById('profilePhoto').value = data.user.profile_photo || '';
+        }
+      } catch (error) {
+        console.error('Load failed:', error);
+      }
+    }
+
+    loadUserData();
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const nameInput = document.getElementById('name').value.trim();
+      
+      if (!nameInput) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Name Required',
+          text: 'Please enter your name',
+          confirmButtonColor: '#f59e0b'
+        });
+        return;
+      }
+
+      const formData = {
+        name: nameInput,
+        profile_photo: document.getElementById('profilePhoto').value.trim()
+      };
+
+      try {
+        const response = await fetch('/api/user/update-profile', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Updated!',
+            text: data.message,
+            confirmButtonColor: '#6366f1',
+            timer: 2000
+          });
+          // Reload user data to reflect changes
+          loadUserData();
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message,
+            confirmButtonColor: '#ef4444'
+          });
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Update failed. Please try again.',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      const result = await Swal.fire({
+        title: 'Logout?',
+        text: 'Are you sure you want to logout?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        cancelButtonColor: '#6366f1'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          await fetch('/api/auth/logout', { method: 'POST' });
+          Swal.fire({
+            icon: 'success',
+            title: 'Logged Out',
+            text: 'See you soon!',
+            confirmButtonColor: '#6366f1',
+            timer: 1500
+          }).then(() => {
+            window.location.href = '/';
+          });
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Logout failed',
+            confirmButtonColor: '#ef4444'
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>

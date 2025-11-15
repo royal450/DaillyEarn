@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel - CashByKing</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    }
+
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: rgba(255,255,255,0.98);
+      --text-color: #1e293b;
+      --accent-color: #6366f1;
+      --accent-gradient: linear-gradient(135deg,#6366f1,#8b5cf6);
+      --border-color: rgba(0,0,0,0.08);
+      --shadow: 0 8px 30px rgba(0,0,0,0.08);
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #0f172a;
+      --card-bg: rgba(15,23,42,0.98);
+      --text-color: #f1f5f9;
+      --accent-color: #818cf8;
+      --accent-gradient: linear-gradient(135deg,#818cf8,#a78bfa);
+      --border-color: rgba(255,255,255,0.1);
+      --shadow: 0 8px 30px rgba(0,0,0,0.3);
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+
+    body {
+      background: var(--bg-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      background-image: radial-gradient(circle at 20% 50%, rgba(99,102,241,0.15) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(139,92,246,0.15) 0%, transparent 50%);
+    }
+
+    .admin-container {
+      max-width: 100%;
+      padding: 20px;
+      min-height: 100vh;
+    }
+
+    .header {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 16px;
+      margin-bottom: 30px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      background: var(--accent-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 12px 24px;
+      border-radius: 12px;
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .tab.active {
+      background: var(--accent-gradient);
+      color: white;
+      border-color: transparent;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--card-bg);
+      padding: 25px;
+      border-radius: 16px;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+    }
+
+    .user-grid, .task-grid {
+      display: grid;
+      gap: 20px;
+    }
+
+    .user-card, .task-card {
+      background: var(--bg-color);
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    .btn-primary {
+      background: var(--accent-gradient);
+      color: white;
+    }
+
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-success {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-warning {
+      background: #f59e0b;
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      background: var(--bg-color);
+      color: var(--text-color);
+      margin-bottom: 15px;
+    }
+
+    .theme-toggle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--bg-color);
+      border: 2px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      overflow-x: auto;
+      display: block;
+    }
+
+    thead, tbody {
+      display: table;
+      width: 100%;
+    }
+
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background: var(--accent-gradient);
+      color: white;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      table {
+        font-size: 14px;
+      }
+
+      th, td {
+        padding: 8px;
+      }
+
+      .tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .tab {
+        font-size: 14px;
+        padding: 10px 18px;
+      }
+
+      .btn {
+        font-size: 12px;
+        padding: 6px 12px;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--accent-gradient);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(135deg, #818cf8, #a78bfa);
+    }
+
+    @media (max-width: 480px) {
+      table {
+        font-size: 12px;
+      }
+
+      th, td {
+        padding: 6px;
+      }
+
+      .tab {
+        font-size: 12px;
+        padding: 8px 14px;
+      }
+
+      h1 {
+        font-size: 20px;
+      }
+
+      input, textarea, select {
+        font-size: 14px;
+        padding: 10px;
+      }
+    }
+  </style>
+</head>
+<body data-theme="light">
+  <div class="admin-container">
+    <div class="header">
+      <h1><i class="fas fa-shield-alt"></i> Admin Panel</h1>
+      <div class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="users"><i class="fas fa-users"></i> Users</div>
+      <div class="tab" data-tab="tasks"><i class="fas fa-tasks"></i> Tasks</div>
+      <div class="tab" data-tab="pending"><i class="fas fa-clock"></i> Pending Tasks</div>
+      <div class="tab" data-tab="withdrawals"><i class="fas fa-money-bill-wave"></i> Withdrawals</div>
+      <div class="tab" data-tab="transactions"><i class="fas fa-exchange-alt"></i> Transactions</div>
+      <div class="tab" data-tab="pwa"><i class="fas fa-mobile-alt"></i> PWA Installs</div>
+    </div>
+
+    <!-- Users Tab -->
+    <div class="tab-content active" id="users">
+      <div class="card" style="background: var(--accent-gradient); color: white; margin-bottom: 20px;">
+        <h2 style="color: white; margin-bottom: 20px;"><i class="fas fa-chart-line"></i> Analytics Dashboard</h2>
+        <div id="analyticsContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;"></div>
+      </div>
+      
+      <div class="card">
+        <h2>User Management</h2>
+        <button class="btn btn-success" onclick="showBulkBonusModal()" style="margin-bottom: 15px;">
+          <i class="fas fa-gift"></i> Give Bulk Bonus to All Users
+        </button>
+        <div id="usersContainer"></div>
+      </div>
+    </div>
+
+    <!-- Tasks Tab -->
+    <div class="tab-content" id="tasks">
+      <div class="card">
+        <h2>Manage Tasks</h2>
+        <button class="btn btn-primary" onclick="showAddTaskModal()">
+          <i class="fas fa-plus"></i> Add New Task
+        </button>
+        <div id="tasksContainer"></div>
+      </div>
+    </div>
+
+    <!-- Pending Tasks Tab -->
+    <div class="tab-content" id="pending">
+      <div class="card">
+        <h2>Pending Task Submissions</h2>
+        <div id="pendingContainer"></div>
+      </div>
+    </div>
+
+    <!-- Withdrawals Tab -->
+    <div class="tab-content" id="withdrawals">
+      <div class="card">
+        <h2>Pending Withdrawals</h2>
+        <div id="withdrawalsContainer"></div>
+      </div>
+    </div>
+
+    <!-- Transactions Tab -->
+    <div class="tab-content" id="transactions">
+      <div class="card">
+        <h2>All Transactions</h2>
+        <div id="transactionsContainer"></div>
+      </div>
+    </div>
+
+    <!-- PWA Installs Tab -->
+    <div class="tab-content" id="pwa">
+      <div class="card">
+        <h2><i class="fas fa-mobile-alt"></i> PWA Installation Analytics</h2>
+        <div id="pwaAnalytics" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;"></div>
+        <div id="pwaInstallsContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let adminPassword = '';
+
+    // Theme toggle
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    body.setAttribute('data-theme', savedTheme);
+    updateThemeIcon();
+
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = body.getAttribute('data-theme');
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      body.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon();
+    });
+
+    function updateThemeIcon() {
+      const theme = body.getAttribute('data-theme');
+      themeToggle.innerHTML = theme === 'light' 
+        ? '<i class="fas fa-moon"></i>' 
+        : '<i class="fas fa-sun"></i>';
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+        loadTabData(tab.dataset.tab);
+      });
+    });
+
+    // Ask for admin password on load - SECURE VERSION (server validates)
+    async function checkAdminAccess() {
+      const { value: password } = await Swal.fire({
+        title: 'Admin Access',
+        input: 'password',
+        inputLabel: 'Enter admin password',
+        inputPlaceholder: 'Enter password',
+        allowOutsideClick: false,
+        showCancelButton: false,
+        inputValidator: (value) => {
+          if (!value) {
+            return 'Password required';
+          }
+        }
+      });
+
+      // Verify password with server (SECURE - no frontend validation)
+      adminPassword = password;
+      
+      // Test password by making a request to server
+      try {
+        const response = await fetch('/api/admin/users', {
+          headers: { 'admin-password': adminPassword }
+        });
+        
+        if (!response.ok) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Access Denied',
+            text: 'Invalid admin password',
+            confirmButtonColor: '#ef4444'
+          }).then(() => {
+            window.location.href = '/';
+          });
+          return;
+        }
+      } catch (error) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to verify access',
+          confirmButtonColor: '#ef4444'
+        }).then(() => {
+          window.location.href = '/';
+        });
+        return;
+      }
+
+      adminPassword = password;
+      loadTabData('users');
+    }
+
+    checkAdminAccess();
+
+    async function loadTabData(tab) {
+      if (tab === 'users') loadUsers();
+      else if (tab === 'tasks') loadTasks();
+      else if (tab === 'pending') loadPendingTasks();
+      else if (tab === 'withdrawals') loadWithdrawals();
+      else if (tab === 'transactions') loadTransactions();
+      else if (tab === 'pwa') loadPWAInstalls();
+    }
+
+    async function loadAnalytics() {
+      try {
+        const response = await fetch('/api/admin/analytics', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const analytics = data.analytics;
+          document.getElementById('analyticsContainer').innerHTML = `
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+              <div style="font-size: 14px; opacity: 0.9;">Total Users</div>
+              <div style="font-size: 24px; font-weight: 700;">${analytics.totalUsers}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+              <div style="font-size: 14px; opacity: 0.9;">Today's Signups</div>
+              <div style="font-size: 24px; font-weight: 700;">${analytics.usersToday}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+              <div style="font-size: 14px; opacity: 0.9;">Total Balance</div>
+              <div style="font-size: 24px; font-weight: 700;">₹${analytics.totalBalance.toFixed(2)}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+              <div style="font-size: 14px; opacity: 0.9;">Pending Withdrawals</div>
+              <div style="font-size: 24px; font-weight: 700;">₹${analytics.pendingWithdrawals.toFixed(2)}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+              <div style="font-size: 14px; opacity: 0.9;">Active Tasks</div>
+              <div style="font-size: 24px; font-weight: 700;">${analytics.activeTasks}</div>
+            </div>
+            <div style="background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px;">
+              <div style="font-size: 14px; opacity: 0.9;">Pending Reviews</div>
+              <div style="font-size: 24px; font-weight: 700;">${analytics.pendingTasks}</div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Load analytics failed:', error);
+      }
+    }
+
+    async function showBulkBonusModal() {
+      const { value: formValues } = await Swal.fire({
+        title: 'Give Bulk Bonus to All Users',
+        html: `
+          <input id="bonusAmount" class="swal2-input" type="number" placeholder="Amount per user" step="0.01" min="0.01">
+          <input id="bonusReason" class="swal2-input" placeholder="Reason">
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#10b981',
+        preConfirm: () => {
+          return {
+            amount: document.getElementById('bonusAmount').value,
+            reason: document.getElementById('bonusReason').value
+          }
+        }
+      });
+
+      if (formValues && formValues.amount) {
+        try {
+          const response = await fetch('/api/admin/bulk-bonus', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({
+              amount: parseFloat(formValues.amount),
+              reason: formValues.reason || 'Bulk bonus from admin'
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Success!', `₹${formValues.amount} added to ${data.affectedUsers} users!`, 'success');
+            loadUsers();
+            loadAnalytics();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function loadUsers() {
+      try {
+        loadAnalytics(); // Load analytics when loading users
+        const response = await fetch('/api/admin/users', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const container = document.getElementById('usersContainer');
+          container.innerHTML = `
+            <table>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Balance</th>
+                <th>Verified</th>
+                <th>Actions</th>
+              </tr>
+              ${data.users.map(user => `
+                <tr style="${user.banned ? 'background: rgba(239,68,68,0.1);' : ''}">
+                  <td>***${String(user.id).slice(-3)}</td>
+                  <td>
+                    ${user.name} ${user.verified_badge ? '✅' : ''}
+                    ${user.banned ? '<br><span style="color: #ef4444; font-size: 12px;">🚫 BANNED</span>' : ''}
+                  </td>
+                  <td>${user.username}</td>
+                  <td>${user.email}</td>
+                  <td>₹${user.balance.toFixed(2)}</td>
+                  <td>${user.verified_badge ? 'Yes' : 'No'}</td>
+                  <td>
+                    <button class="btn btn-success" onclick="manageBalance(${user.id}, '${user.name}')">Balance</button>
+                    <button class="btn btn-primary" onclick="toggleVerifyBadge(${user.id}, ${user.verified_badge})">Badge</button>
+                    ${user.telegram_joined && !user.telegram_reward_claimed ? 
+                      `<button class="btn btn-warning" onclick="verifyTelegram(${user.id})">Verify TG</button>` : ''}
+                    ${user.banned ? 
+                      `<button class="btn btn-success" onclick="unbanUser(${user.id})">Unban</button>` :
+                      `<button class="btn btn-danger" onclick="banUser(${user.id})">Ban</button>`
+                    }
+                    <button class="btn btn-danger" onclick="deleteUser(${user.id}, '${user.name}')">Delete</button>
+                  </td>
+                </tr>
+              `).join('')}
+            </table>
+          `;
+        }
+      } catch (error) {
+        console.error('Load users failed:', error);
+      }
+    }
+
+    async function manageBalance(userId, name) {
+      const { value: formValues } = await Swal.fire({
+        title: `Manage Balance - ${name}`,
+        html: `
+          <input id="amount" class="swal2-input" placeholder="Amount (use - for deduct)" type="number" step="0.01">
+          <input id="reason" class="swal2-input" placeholder="Reason">
+        `,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonColor: '#6366f1',
+        preConfirm: () => {
+          return {
+            amount: document.getElementById('amount').value,
+            reason: document.getElementById('reason').value
+          }
+        }
+      });
+
+      if (formValues) {
+        try {
+          const response = await fetch('/api/admin/user/balance', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({
+              userId,
+              amount: parseFloat(formValues.amount),
+              reason: formValues.reason
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Success!', data.message, 'success');
+            loadUsers();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function toggleVerifyBadge(userId, currentStatus) {
+      const result = await Swal.fire({
+        title: currentStatus ? 'Remove Verify Badge?' : 'Give Verify Badge?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6366f1'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/user/verify-badge', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({
+              userId,
+              verified: !currentStatus
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Success!', data.message, 'success');
+            loadUsers();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function unbanUser(userId) {
+      const result = await Swal.fire({
+        title: 'Unban User?',
+        text: 'This will restore user access',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/user/ban', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({
+              userId,
+              banned: false,
+              reason: '',
+              banType: 'permanent',
+              banDays: null
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Unbanned!', data.message, 'success');
+            loadUsers();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function deleteUser(userId, userName) {
+      const result = await Swal.fire({
+        title: 'Delete User?',
+        html: `Are you sure you want to permanently delete <strong>${userName}</strong>?<br><br><span style="color: #ef4444;">⚠️ This action cannot be undone!</span>`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        confirmButtonText: 'Yes, Delete User'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/user/delete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ userId })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Deleted!', data.message, 'success');
+            loadUsers();
+            loadAnalytics();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function verifyTelegram(userId) {
+      const result = await Swal.fire({
+        title: 'Verify Telegram Join?',
+        text: 'This will add ₹5 to user wallet',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6366f1'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/verify-telegram', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ userId })
+          });
+
+          const data = await response.json();
+          Swal.fire(data.success ? 'Success!' : 'Error', data.message, data.success ? 'success' : 'error');
+          if (data.success) loadUsers();
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function banUser(userId) {
+      const { value: formValues } = await Swal.fire({
+        title: 'Ban User',
+        html: `
+          <select id="banType" class="swal2-input" style="width: 80%;">
+            <option value="permanent">Permanent Ban</option>
+            <option value="temporary">Temporary Ban</option>
+          </select>
+          <div id="banDaysContainer" style="display: none; margin-top: 10px;">
+            <input id="banDays" class="swal2-input" type="number" placeholder="Number of days" min="1" style="width: 80%;">
+          </div>
+          <textarea id="banReason" class="swal2-input" placeholder="Ban Reason" style="width: 80%; height: 80px; margin-top: 10px;"></textarea>
+        `,
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444',
+        didOpen: () => {
+          const banTypeSelect = document.getElementById('banType');
+          const banDaysContainer = document.getElementById('banDaysContainer');
+          
+          banTypeSelect.addEventListener('change', () => {
+            banDaysContainer.style.display = banTypeSelect.value === 'temporary' ? 'block' : 'none';
+          });
+        },
+        preConfirm: () => {
+          const banType = document.getElementById('banType').value;
+          const banDays = document.getElementById('banDays').value;
+          const reason = document.getElementById('banReason').value;
+          
+          if (!reason) {
+            Swal.showValidationMessage('Please enter ban reason');
+            return false;
+          }
+          
+          if (banType === 'temporary' && !banDays) {
+            Swal.showValidationMessage('Please enter number of days');
+            return false;
+          }
+          
+          return { banType, banDays, reason };
+        }
+      });
+
+      if (formValues) {
+        try {
+          const response = await fetch('/api/admin/user/ban', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({
+              userId,
+              banned: true,
+              reason: formValues.reason,
+              banType: formValues.banType,
+              banDays: formValues.banDays ? parseInt(formValues.banDays) : null
+            })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Banned!', data.message, 'success');
+            loadUsers();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function loadTasks() {
+      try {
+        const response = await fetch('/api/admin/tasks', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const container = document.getElementById('tasksContainer');
+          
+          if (data.tasks.length === 0) {
+            container.innerHTML = `
+              <div style="text-align: center; padding: 60px 20px; opacity: 0.6;">
+                <i class="fas fa-tasks" style="font-size: 60px; color: var(--accent-color); margin-bottom: 20px;"></i>
+                <p style="font-size: 18px; font-weight: 600;">No tasks created yet</p>
+                <p style="font-size: 14px; margin-top: 10px;">Click "Add New Task" to create your first task</p>
+              </div>
+            `;
+            return;
+          }
+          
+          container.innerHTML = `
+            <!-- Horizontal Scrollable Container with ALWAYS VISIBLE Scrollbar -->
+            <div style="overflow-x: scroll; overflow-y: visible; white-space: nowrap; padding: 15px 0 30px 0; -webkit-overflow-scrolling: touch;">
+              <style>
+                /* Always visible scrollbar */
+                #tasksContainer > div:first-child::-webkit-scrollbar {
+                  height: 12px;
+                }
+                #tasksContainer > div:first-child::-webkit-scrollbar-track {
+                  background: var(--bg-color);
+                  border-radius: 10px;
+                  border: 1px solid var(--border-color);
+                }
+                #tasksContainer > div:first-child::-webkit-scrollbar-thumb {
+                  background: var(--accent-gradient);
+                  border-radius: 10px;
+                }
+                #tasksContainer > div:first-child::-webkit-scrollbar-thumb:hover {
+                  background: linear-gradient(135deg, #818cf8, #a78bfa);
+                }
+              </style>
+              <div style="display: inline-flex; gap: 12px; padding: 0 5px;">
+                ${data.tasks.map((task, index) => `
+                  <div style="display: inline-block; width: 240px; white-space: normal; vertical-align: top;">
+                    <!-- Task Card -->
+                    <div style="background: var(--card-bg); border-radius: 14px; border: 2px solid var(--border-color); box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden; height: 100%;">
+                      
+                      <!-- Task Header -->
+                      <div style="background: var(--accent-gradient); padding: 10px 12px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                          <span style="color: white; font-weight: 900; font-size: 10px; letter-spacing: 0.5px;">TASK #${index + 1}</span>
+                          <span style="background: ${task.enabled ? 'rgba(16,185,129,0.3)' : 'rgba(239,68,68,0.3)'}; color: white; padding: 3px 8px; border-radius: 6px; font-weight: 700; font-size: 9px;">
+                            ${task.enabled ? '✓ ACTIVE' : '✗ OFF'}
+                          </span>
+                        </div>
+                        <div style="color: white; font-weight: 800; font-size: 13px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${task.title}">${task.title}</div>
+                      </div>
+
+                      <!-- Task Body -->
+                      <div style="padding: 12px;">
+                        <!-- Price & Timer -->
+                        <div style="display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap;">
+                          <span style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 5px 10px; border-radius: 8px; font-weight: 900; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+                            <i class="fas fa-rupee-sign" style="font-size: 10px;"></i> ${task.price}
+                          </span>
+                          ${task.timer ? `<span style="background: rgba(99,102,241,0.15); color: var(--accent-color); padding: 5px 10px; border-radius: 8px; font-weight: 700; font-size: 11px; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fas fa-clock" style="font-size: 9px;"></i> ${task.timer}s
+                          </span>` : ''}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display: grid; gap: 6px;">
+                          <button class="btn ${task.enabled ? 'btn-warning' : 'btn-success'}" onclick="toggleTask(${task.id}, ${task.enabled})" style="padding: 9px 12px; font-size: 11px; border-radius: 9px; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fas fa-power-off"></i> ${task.enabled ? 'Disable' : 'Enable'}
+                          </button>
+                          <button class="btn btn-danger" onclick="deleteTask(${task.id})" style="padding: 9px 12px; font-size: 11px; border-radius: 9px; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fas fa-trash-alt"></i> Delete Task
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            
+            <!-- Scroll Indicator -->
+            <div style="text-align: center; margin-top: 12px; padding: 8px; background: rgba(99,102,241,0.1); border-radius: 10px; color: var(--accent-color); font-size: 12px; font-weight: 600;">
+              <i class="fas fa-arrow-left"></i> Scroll horizontally to see all tasks <i class="fas fa-arrow-right"></i>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Load tasks failed:', error);
+      }
+    }
+
+    async function showAddTaskModal() {
+      const { value: formValues } = await Swal.fire({
+        title: '<div style="font-size: 24px; font-weight: 900; background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 8px;">✨ Add New Task</div>',
+        html: `
+          <div style="text-align: left; max-width: 450px; margin: 0 auto;">
+            <!-- Title & Price in one row -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <input id="title" class="swal2-input" placeholder="📝 Task Title" style="margin: 0; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 10px; border: 2px solid #e0e7ff; background: #f8faff;">
+              <input id="price" class="swal2-input" placeholder="💰 ₹" type="number" step="0.01" style="margin: 0; padding: 12px; font-size: 14px; font-weight: 700; border-radius: 10px; border: 2px solid #d1fae5; background: #f0fdf4;">
+            </div>
+            
+            <!-- Task URL -->
+            <input id="task_url" class="swal2-input" placeholder="🔗 Task URL (https://...)" style="margin: 0 0 10px 0; padding: 12px; font-size: 13px; border-radius: 10px; border: 2px solid #ede9fe; background: #faf5ff;">
+            
+            <!-- Description -->
+            <textarea id="description" class="swal2-input" placeholder="📄 Short description..." rows="2" style="margin: 0 0 10px 0; padding: 12px; font-size: 13px; border-radius: 10px; border: 2px solid #fef3c7; background: #fffbeb; resize: vertical;"></textarea>
+            
+            <!-- Instructions -->
+            <textarea id="instruction" class="swal2-input" placeholder="📋 Instructions for users..." rows="2" style="margin: 0 0 10px 0; padding: 12px; font-size: 13px; border-radius: 10px; border: 2px solid #fee2e2; background: #fef2f2; resize: vertical;"></textarea>
+            
+            <!-- Steps -->
+            <textarea id="steps" class="swal2-input" placeholder="✅ Steps (one per line)\nStep 1: ...\nStep 2: ..." rows="2" style="margin: 0 0 10px 0; padding: 12px; font-size: 13px; border-radius: 10px; border: 2px solid #cffafe; background: #ecfeff; resize: vertical;"></textarea>
+            
+            <!-- Timer & Category -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+              <input id="timer" class="swal2-input" placeholder="⏱️ Timer (sec)" type="number" style="margin: 0; padding: 12px; font-size: 13px; border-radius: 10px; border: 2px solid #fce7f3; background: #fdf2f8;">
+              <input id="thumbnail" class="swal2-input" placeholder="🖼️ Category" style="margin: 0; padding: 12px; font-size: 13px; border-radius: 10px; border: 2px solid #ccfbf1; background: #f0fdfa;">
+            </div>
+            
+            <!-- Notification Toggle -->
+            <div style="margin-top: 12px; padding: 14px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 12px; box-shadow: 0 4px 15px rgba(99,102,241,0.3);">
+              <label style="display: flex; align-items: center; cursor: pointer; user-select: none;">
+                <input type="checkbox" id="sendNotification" checked style="width: 22px; height: 22px; margin-right: 12px; cursor: pointer; accent-color: white;">
+                <div>
+                  <div style="font-weight: 800; font-size: 14px; color: white; margin-bottom: 3px;">📢 Send Push Notification</div>
+                  <div style="font-size: 12px; color: rgba(255,255,255,0.9);">Notify all users instantly about new task</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        `,
+        width: '500px',
+        padding: '30px 20px',
+        background: '#ffffff',
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: '<i class="fas fa-plus-circle"></i> Create Task',
+        cancelButtonText: '<i class="fas fa-times"></i> Cancel',
+        confirmButtonColor: '#10b981',
+        cancelButtonColor: '#6b7280',
+        customClass: {
+          confirmButton: 'swal2-confirm-custom',
+          cancelButton: 'swal2-cancel-custom'
+        },
+        preConfirm: () => {
+          const title = document.getElementById('title').value;
+          const price = document.getElementById('price').value;
+          
+          if (!title || !price) {
+            Swal.showValidationMessage('❗ Title aur Price required hai!');
+            return false;
+          }
+          
+          if (parseFloat(price) <= 0) {
+            Swal.showValidationMessage('❗ Price 0 se jyada honi chahiye!');
+            return false;
+          }
+          
+          return {
+            title: title,
+            description: document.getElementById('description').value,
+            instruction: document.getElementById('instruction').value,
+            task_url: document.getElementById('task_url').value,
+            steps: document.getElementById('steps').value,
+            price: price,
+            timer: document.getElementById('timer').value || 0,
+            thumbnail: document.getElementById('thumbnail').value,
+            sendNotification: document.getElementById('sendNotification').checked
+          }
+        }
+      });
+
+      if (formValues) {
+        try {
+          const response = await fetch('/api/admin/tasks/create', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify(formValues)
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            let successMsg = data.message;
+            if (formValues.sendNotification && data.notificationsSent > 0) {
+              successMsg += `\n\n🔔 ${data.notificationsSent} users notified!`;
+            }
+            
+            Swal.fire({
+              icon: 'success',
+              title: '🎉 Task Created!',
+              html: successMsg,
+              confirmButtonColor: '#10b981'
+            });
+            loadTasks();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function toggleTask(taskId, currentStatus) {
+      try {
+        const response = await fetch('/api/admin/tasks/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'admin-password': adminPassword
+          },
+          body: JSON.stringify({
+            taskId,
+            enabled: !currentStatus
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Swal.fire('Success!', data.message, 'success');
+          loadTasks();
+        }
+      } catch (error) {
+        Swal.fire('Error', 'Operation failed', 'error');
+      }
+    }
+
+    async function deleteTask(taskId) {
+      const result = await Swal.fire({
+        title: 'Delete Task?',
+        text: 'This action cannot be undone',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/tasks/delete', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ taskId })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Deleted!', data.message, 'success');
+            loadTasks();
+          } else {
+            Swal.fire('Error', data.message || 'Delete failed', 'error');
+          }
+        } catch (error) {
+          console.error('Delete task error:', error);
+          Swal.fire('Error', 'Operation failed: ' + error.message, 'error');
+        }
+      }
+    }
+
+    async function loadPendingTasks() {
+      try {
+        const response = await fetch('/api/admin/pending-tasks', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const container = document.getElementById('pendingContainer');
+          container.innerHTML = `
+            <table>
+              <tr>
+                <th>User</th>
+                <th>Task</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+              ${data.pendingTasks.map(pt => `
+                <tr>
+                  <td>${pt.name} (${pt.username})</td>
+                  <td>${pt.task_title}</td>
+                  <td>₹${pt.price}</td>
+                  <td>${pt.status === 'rejected' ? `<span style="color: #ef4444; font-weight: 700;">Rejected</span>` : pt.status}</td>
+                  <td>${new Date(pt.submitted_at).toLocaleString()}</td>
+                  <td>
+                    ${pt.status === 'pending' ? `
+                      <button class="btn btn-success" onclick="approveTask(${pt.id}, ${pt.user_id}, ${pt.task_id}, ${pt.price})">Approve</button>
+                      <button class="btn btn-danger" onclick="rejectTask(${pt.id})">Reject</button>
+                    ` : pt.status === 'rejected' && pt.custom_reason ? `<span style="color: #ef4444; font-weight: 600;">🚫 ${pt.custom_reason}</span>` : pt.status}
+                  </td>
+                </tr>
+              `).join('')}
+            </table>
+          `;
+        }
+      } catch (error) {
+        console.error('Load pending tasks failed:', error);
+      }
+    }
+
+    async function approveTask(pendingId, userId, taskId, price) {
+      const result = await Swal.fire({
+        title: 'Approve Task?',
+        text: `This will add ₹${price} to user wallet`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/pending-tasks/approve', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ pendingId, userId, taskId, price })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Approved!', data.message, 'success');
+            loadPendingTasks();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function rejectTask(pendingId) {
+      const { value: reason } = await Swal.fire({
+        title: 'Reject Task',
+        input: 'text',
+        inputLabel: 'Rejection Reason',
+        inputPlaceholder: 'Enter reason',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444'
+      });
+
+      if (reason) {
+        try {
+          const response = await fetch('/api/admin/pending-tasks/reject', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ pendingId, reason })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Rejected!', data.message, 'success');
+            loadPendingTasks();
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function loadWithdrawals() {
+      try {
+        const response = await fetch('/api/admin/withdrawals', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const container = document.getElementById('withdrawalsContainer');
+          const pending = data.withdrawals.filter(w => w.status === 'pending');
+          
+          if (pending.length === 0) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; opacity: 0.6;">No pending withdrawals</p>';
+          } else {
+            container.innerHTML = `
+              <table>
+                <tr>
+                  <th>User</th>
+                  <th>Amount</th>
+                  <th>UPI ID</th>
+                  <th>Requested</th>
+                  <th>Actions</th>
+                </tr>
+                ${pending.map(w => `
+                  <tr>
+                    <td>${w.name} (${w.username})<br><small>${w.email}</small></td>
+                    <td style="font-weight: 700; font-size: 18px;">₹${w.amount.toFixed(2)}</td>
+                    <td>${w.upi_id}</td>
+                    <td>${new Date(w.request_date).toLocaleString()}</td>
+                    <td>
+                      <button class="btn btn-success" onclick="approveWithdrawal(${w.id}, ${w.user_id}, ${w.amount})">
+                        <i class="fas fa-check"></i> Approve
+                      </button>
+                      <button class="btn btn-danger" onclick="rejectWithdrawal(${w.id})">
+                        <i class="fas fa-times"></i> Reject
+                      </button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </table>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Load withdrawals failed:', error);
+      }
+    }
+
+    async function approveWithdrawal(withdrawalId, userId, amount) {
+      const result = await Swal.fire({
+        title: 'Approve Withdrawal?',
+        text: `This will deduct ₹${amount.toFixed(2)} from user balance`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10b981'
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch('/api/admin/withdrawals/approve', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ withdrawalId })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Approved!', data.message, 'success');
+            loadWithdrawals();
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function rejectWithdrawal(withdrawalId) {
+      const { value: notes } = await Swal.fire({
+        title: 'Reject Withdrawal',
+        input: 'text',
+        inputLabel: 'Rejection Reason',
+        inputPlaceholder: 'Enter reason for rejection',
+        showCancelButton: true,
+        confirmButtonColor: '#ef4444'
+      });
+
+      if (notes) {
+        try {
+          const response = await fetch('/api/admin/withdrawals/reject', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'admin-password': adminPassword
+            },
+            body: JSON.stringify({ withdrawalId, adminNotes: notes })
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Swal.fire('Rejected!', data.message, 'success');
+            loadWithdrawals();
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        } catch (error) {
+          Swal.fire('Error', 'Operation failed', 'error');
+        }
+      }
+    }
+
+    async function loadTransactions() {
+      try {
+        const response = await fetch('/api/admin/transactions', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const container = document.getElementById('transactionsContainer');
+          container.innerHTML = `
+            <table>
+              <tr>
+                <th>User</th>
+                <th>Type</th>
+                <th>Amount</th>
+                <th>Reason</th>
+                <th>Date</th>
+              </tr>
+              ${data.transactions.map(t => `
+                <tr>
+                  <td>${t.name} (${t.username})</td>
+                  <td>${t.type}</td>
+                  <td>₹${t.amount.toFixed(2)}</td>
+                  <td>${t.reason}</td>
+                  <td>${new Date(t.created_at).toLocaleString()}</td>
+                </tr>
+              `).join('')}
+            </table>
+          `;
+        }
+      } catch (error) {
+        console.error('Load transactions failed:', error);
+      }
+    }
+
+    async function loadPWAInstalls() {
+      try {
+        const response = await fetch('/api/admin/pwa-installs', {
+          headers: { 'admin-password': adminPassword }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          // Analytics cards
+          const analyticsContainer = document.getElementById('pwaAnalytics');
+          analyticsContainer.innerHTML = `
+            <div style="background: var(--accent-gradient); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Total Installs</div>
+              <div style="font-size: 32px; font-weight: 900;">${data.stats.totalInstalls}</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Today's Installs</div>
+              <div style="font-size: 32px; font-weight: 900;">${data.stats.todayInstalls}</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">This Week</div>
+              <div style="font-size: 32px; font-weight: 900;">${data.stats.weekInstalls}</div>
+            </div>
+            <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 20px; border-radius: 12px; text-align: center;">
+              <div style="font-size: 14px; opacity: 0.9; margin-bottom: 8px;">Install Rate</div>
+              <div style="font-size: 32px; font-weight: 900;">${data.stats.installRate}%</div>
+            </div>
+          `;
+
+          // Installs table
+          const container = document.getElementById('pwaInstallsContainer');
+          if (data.installs.length === 0) {
+            container.innerHTML = '<p style="text-align: center; padding: 40px; opacity: 0.6;">No PWA installs yet</p>';
+          } else {
+            container.innerHTML = `
+              <table>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Device Info</th>
+                  <th>Installed At</th>
+                </tr>
+                ${data.installs.map(install => `
+                  <tr>
+                    <td><strong>${install.name}</strong><br><small>@${install.username}</small></td>
+                    <td>${install.email}</td>
+                    <td>${install.phone}</td>
+                    <td><small>${install.user_agent || 'Unknown device'}</small></td>
+                    <td>${new Date(install.installed_at).toLocaleString()}</td>
+                  </tr>
+                `).join('')}
+              </table>
+            `;
+          }
+        }
+      } catch (error) {
+        console.error('Load PWA installs failed:', error);
+      }
+    }
+  </script>
+</body>
+</html>

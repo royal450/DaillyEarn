@@ -1,0 +1,27 @@
+{
+  "name": "cashbyking-earning-platform",
+  "version": "1.0.0",
+  "description": "Complete earning platform with admin control",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "earning",
+    "task",
+    "admin"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.6.0",
+    "body-parser": "^1.20.3",
+    "connect-sqlite3": "^0.9.16",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "express-session": "^1.18.2",
+    "express-session-sqlite": "^2.1.1"
+  }
+}
